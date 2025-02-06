@@ -1,0 +1,30 @@
+---
+- name: Créer un répertoire, un groupe, un utilisateur et définir les permissions
+  hosts: all
+  become: yes  # Exécuter les tâches avec des privilèges élevés
+  vars:
+    rep : /app_data
+  tasks:
+    - name: Créer un répertoire
+      ansible.builtin.file:
+        path: "{{ rep }}"
+        state: directory
+
+    - name: Créer un groupe d'utilisateurs
+      ansible.builtin.group:
+        name: app_group
+        state: present
+
+    - name: Créer un utilisateur et l'ajouter au groupe
+      ansible.builtin.user:
+        name: app_user
+        group: app_group
+        create_home: yes
+        state: present
+
+    - name: Appliquer les droits de l'utilisateur et les permissions sur le répertoire
+      ansible.builtin.file:
+        path: "{{ rep }}"
+        owner: app_user
+        group: app_group
+        mode: '0744'  # Permissions 744 pour le répertoire
